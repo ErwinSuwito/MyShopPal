@@ -22,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
         // Delays and navigate to MainActiivty
         Handler(Looper.getMainLooper()).postDelayed({
             // Your Code
-            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
             finish() // Call this when your activity is done and should be closed.
 
         }, 3000)

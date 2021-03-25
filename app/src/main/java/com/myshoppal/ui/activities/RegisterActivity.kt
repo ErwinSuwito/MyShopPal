@@ -4,6 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.WindowManager
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.myshoppal.R
 import kotlinx.android.synthetic.main.activity_register.*
 
@@ -21,7 +25,7 @@ class RegisterActivity : BaseActivity() {
 
         btn_register.setOnClickListener {
 
-            validateRegisterDetails()
+            registerUser()
         }
     }
 
@@ -75,9 +79,32 @@ class RegisterActivity : BaseActivity() {
                 false
             }
             else -> {
-                showErrorSnackBar("Your details are valid.", false)
                 true
             }
+        }
+    }
+
+    private fun registerUser() {
+        if (validateRegisterDetails())
+        {
+            val email: String = et_email.text.toString().trim { it <= ' '}
+            val password: String = et_email.text.toString().trim { it <= ' '}
+
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(
+                            OnCompleteListener<AuthResult> { task ->
+                                if (task.isSuccessful)
+                                {
+                                    val firebaseUser: FirebaseUser = task.result!!.user!!
+
+                                    showErrorSnackBar("You are registered successfully. Your user id is ${firebaseUser.uid}", false)
+                                }
+                                else
+                                {
+                                    showErrorSnackBar(task.exception!!.message.toString(), true)
+                                }
+                            }
+                    )
         }
     }
 }

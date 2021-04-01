@@ -10,6 +10,8 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.myshoppal.R
+import com.myshoppal.firestore.FirestoreClass
+import com.myshoppal.models.User
 import kotlinx.android.synthetic.main.activity_register.*
 
 class RegisterActivity : BaseActivity() {
@@ -88,7 +90,6 @@ class RegisterActivity : BaseActivity() {
     private fun registerUser() {
         if (validateRegisterDetails())
         {
-
             showProgressDialog(resources.getString(R.string.please_wait))
 
             val email: String = et_email.text.toString().trim { it <= ' '}
@@ -98,22 +99,18 @@ class RegisterActivity : BaseActivity() {
                     .addOnCompleteListener(
                             OnCompleteListener<AuthResult> { task ->
 
-                                hideProgressDialog()
-
                                 if (task.isSuccessful)
                                 {
                                     val firebaseUser: FirebaseUser = task.result!!.user!!
 
-                                    Toast.makeText(
-                                        this@RegisterActivity,
-                                        resources.getString(R.string.register_success),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    val user = User(
+                                        firebaseUser.uid,
+                                        et_first_name.text.toString().trim { it <= ' ' },
+                                        et_last_name.text.toString().trim { it <= ' ' },
+                                        et_email.text.toString().trim { it <= ' ' }
+                                    )
 
-
-                                    // Signs out the user and return to the login screen
-                                    FirebaseAuth.getInstance().signOut()
-                                    finish()
+                                    FirestoreClass().registerUser(this@RegisterActivity, user)
                                 }
                                 else
                                 {
@@ -122,5 +119,18 @@ class RegisterActivity : BaseActivity() {
                             }
                     )
         }
+    }
+
+    fun userRegistrationSuccess() {
+        hideProgressDialog()
+
+        Toast.makeText(
+            this@RegisterActivity,
+            resources.getString(R.string.register_success),
+            Toast.LENGTH_SHORT
+        ).show()
+
+        FirebaseAuth.getInstance().signOut()
+        finish()
     }
 }

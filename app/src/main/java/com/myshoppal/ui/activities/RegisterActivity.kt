@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.WindowManager
+import android.widget.Toast
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -103,7 +104,12 @@ class RegisterActivity : BaseActivity() {
                                 {
                                     val firebaseUser: FirebaseUser = task.result!!.user!!
 
-                                    showErrorSnackBar("You are registered successfully. Your user id is ${firebaseUser.uid}", false)
+                                    Toast.makeText(
+                                        this@RegisterActivity,
+                                        resources.getString(R.string.register_success),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
 
                                     // Signs out the user and return to the login screen
                                     FirebaseAuth.getInstance().signOut()

@@ -4,11 +4,14 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import com.google.firebase.auth.FirebaseAuth
 import com.myshoppal.R
+import com.myshoppal.firestore.FirestoreClass
+import com.myshoppal.models.User
 import com.myshoppal.utils.MSPTextViewBold
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -83,16 +86,25 @@ class LoginActivity : BaseActivity(), View.OnClickListener {
             FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
 
-                        // Hide the progress dialog
-                        hideProgressDialog()
-
                         if (task.isSuccessful) {
-
-                            showErrorSnackBar("You are logged in successfully.", false)
+                            FirestoreClass().getUserDetails(this@LoginActivity)
                         } else {
+                            hideProgressDialog()
                             showErrorSnackBar(task.exception!!.message.toString(), true)
                         }
                     }
         }
+    }
+
+    fun userLoggedInSuccess(user: User) {
+        // Hide the progress dialog
+        hideProgressDialog()
+
+        Log.i("First Name: ", user.firstName)
+        Log.i("Last Name: ", user.lastName)
+        Log.i("Email: ", user.email)
+
+        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+        finish()
     }
 }

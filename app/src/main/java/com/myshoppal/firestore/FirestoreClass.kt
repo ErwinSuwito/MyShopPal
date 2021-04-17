@@ -10,6 +10,7 @@ import com.google.firebase.firestore.SetOptions
 import com.myshoppal.models.User
 import com.myshoppal.ui.activities.LoginActivity
 import com.myshoppal.ui.activities.RegisterActivity
+import com.myshoppal.ui.activities.UserProfileActivity
 import com.myshoppal.utils.Constants
 
 class FirestoreClass {
@@ -96,4 +97,37 @@ class FirestoreClass {
                     Log.e(activity.javaClass.simpleName, "Error while getting user details.")
                 }
     }
+
+    fun updateUserProfileData(activity: Activity, userHashMap: HashMap<String, Any>) {
+        // Collection Name
+        mFireStore.collection(Constants.USERS)
+            // Document ID against which the data to be updated. Here the document id is the current logged in user id.
+            .document(getCurrentUserID())
+            // A HashMap of fields which are to be updated.
+            .update(userHashMap)
+            .addOnSuccessListener {
+                when (activity) {
+                    is UserProfileActivity -> {
+                        // Call a function of base activity for transferring the result to it.
+                        activity.userProfileUpdateSuccess()
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+
+                when (activity) {
+                    is UserProfileActivity -> {
+                        // Hide the progress dialog if there is any error. And print the error in log.
+                        activity.hideProgressDialog()
+                    }
+                }
+
+                Log.e(
+                    activity.javaClass.simpleName,
+                    "Error while updating the user details.",
+                    e
+                )
+            }
+    }
+
 }

@@ -25,6 +25,12 @@ object Constants {
     // A unique code of image selection from Phone Storage.
     const val PICK_IMAGE_REQUEST_CODE = 2
 
+    const val MALE: String = "Male"
+    const val FEMALE: String = "Female"
+
+    const val MOBILE: String = "mobile"
+    const val GENDER: String = "gender"
+
     /**
      * A function for user profile image selection from phone storage.
      */

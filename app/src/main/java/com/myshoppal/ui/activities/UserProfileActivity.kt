@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.myshoppal.R
+import com.myshoppal.firestore.FirestoreClass
 import com.myshoppal.models.User
 import com.myshoppal.utils.Constants
 import com.myshoppal.utils.GlideLoader
@@ -25,23 +26,25 @@ import kotlinx.android.synthetic.main.activity_user_profile.*
 import java.io.IOException
 
 class UserProfileActivity : BaseActivity(), View.OnClickListener {
+
+    private lateinit var mUserDetails: User
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_profile)
 
-        var userDetails: User = User()
         if (intent.hasExtra(Constants.EXTRA_USER_DETAILS)) {
-            userDetails = intent.getParcelableExtra(Constants.EXTRA_USER_DETAILS)!!
+            mUserDetails = intent.getParcelableExtra(Constants.EXTRA_USER_DETAILS)!!
         }
 
         et_first_name.isEnabled = false
-        et_first_name.setText(userDetails.firstName)
+        et_first_name.setText(mUserDetails.firstName)
 
         et_last_name.isEnabled = false
-        et_last_name.setText(userDetails.lastName)
+        et_last_name.setText(mUserDetails.lastName)
 
         et_email.isEnabled = false
-        et_email.setText(userDetails.email)
+        et_email.setText(mUserDetails.email)
 
         iv_user_photo.setOnClickListener(this@UserProfileActivity)
         btn_save.setOnClickListener(this@UserProfileActivity)
@@ -74,7 +77,33 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
                 R.id.btn_save -> {
                     if (validateUserProfileDetails()) {
-                        showErrorSnackBar("Your details are valid. You can update them.",false)
+                        val userHashMap = HashMap<String, Any>()
+
+                        // Here the field which are not editable needs no update. So, we will update user Mobile Number and Gender for now.
+
+                        // Here we get the text from editText and trim the space
+                        val mobileNumber = et_mobile_number.text.toString().trim { it <= ' ' }
+
+                        val gender = if (rb_male.isChecked) {
+                            Constants.MALE
+                        } else {
+                            Constants.FEMALE
+                        }
+
+                        if (mobileNumber.isNotEmpty()) {
+                            userHashMap[Constants.MOBILE] = mobileNumber.toLong()
+                        }
+
+                        userHashMap[Constants.GENDER] = gender
+
+                        // Show the progress dialog.
+                        showProgressDialog(resources.getString(R.string.please_wait))
+
+                        // call the registerUser function of FireStore class to make an entry in the database.
+                        FirestoreClass().updateUserProfileData(
+                            this@UserProfileActivity,
+                            userHashMap
+                        )
                     }
                 }
             }
@@ -140,5 +169,18 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
                 true
             }
         }
+    }
+
+    fun userProfileUpdateSuccess() {
+        hideProgressDialog()
+
+        Toast.makeText(
+            this@UserProfileActivity,
+            resources.getString(R.string.msg_profile_update_success),
+            Toast.LENGTH_SHORT
+        ).show()
+
+        startActivity(Intent(this@UserProfileActivity, MainActivity::class.java))
+        finish()
     }
 }

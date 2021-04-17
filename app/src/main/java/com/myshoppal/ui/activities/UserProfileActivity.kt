@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.myshoppal.R
 import com.myshoppal.models.User
 import com.myshoppal.utils.Constants
+import com.myshoppal.utils.GlideLoader
 import kotlinx.android.synthetic.main.activity_register.*
 import kotlinx.android.synthetic.main.activity_register.et_email
 import kotlinx.android.synthetic.main.activity_register.et_first_name
@@ -98,7 +99,8 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
                         // The uri of selected image from phone storage.
                         val selectedImageFileUri = data.data!!
 
-                        iv_user_photo.setImageURI(Uri.parse(selectedImageFileUri.toString()))
+                        GlideLoader(this@UserProfileActivity).loadUserPicture(selectedImageFileUri, iv_user_photo)
+
                     } catch (e: IOException) {
                         e.printStackTrace()
                         Toast.makeText(

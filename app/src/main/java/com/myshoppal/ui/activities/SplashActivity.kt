@@ -30,7 +30,7 @@ class SplashActivity : AppCompatActivity() {
 
             if (currentUserID.isNotEmpty()) {
                 // Start the Main Activity
-                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                startActivity(Intent(this@SplashActivity, DashboardActivity::class.java))
             } else {
                 // Launch the Login Activity
                 startActivity(Intent(this@SplashActivity, LoginActivity::class.java))

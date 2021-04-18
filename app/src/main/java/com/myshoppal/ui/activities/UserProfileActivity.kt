@@ -28,6 +28,7 @@ import java.io.IOException
 class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
     private lateinit var mUserDetails: User
+    private var mSelectedImageFileUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +78,9 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
                 R.id.btn_save -> {
                     if (validateUserProfileDetails()) {
+                        // Show the progress dialog.
+                        showProgressDialog(resources.getString(R.string.please_wait))
+
                         val userHashMap = HashMap<String, Any>()
 
                         // Here the field which are not editable needs no update. So, we will update user Mobile Number and Gender for now.
@@ -96,8 +100,10 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
                         userHashMap[Constants.GENDER] = gender
 
-                        // Show the progress dialog.
-                        showProgressDialog(resources.getString(R.string.please_wait))
+                        FirestoreClass().uploadImageToCloudStorage(
+                                this@UserProfileActivity,
+                                mSelectedImageFileUri
+                        )
 
                         // call the registerUser function of FireStore class to make an entry in the database.
                         FirestoreClass().updateUserProfileData(
@@ -133,9 +139,9 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
                 if (data != null) {
                     try {
                         // The uri of selected image from phone storage.
-                        val selectedImageFileUri = data.data!!
+                        mSelectedImageFileUri = data.data!!
 
-                        GlideLoader(this@UserProfileActivity).loadUserPicture(selectedImageFileUri, iv_user_photo)
+                        GlideLoader(this@UserProfileActivity).loadUserPicture(mSelectedImageFileUri!!, iv_user_photo)
 
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -182,5 +188,11 @@ class UserProfileActivity : BaseActivity(), View.OnClickListener {
 
         startActivity(Intent(this@UserProfileActivity, MainActivity::class.java))
         finish()
+    }
+
+    fun imageUploadSuccess(imageUrl: String) {
+        hideProgressDialog()
+
+        Toast.makeText(this@UserProfileActivity, "Your image is uploaded successfully. Image URL is $imageUrl", Toast.LENGTH_SHORT).show()
     }
 }

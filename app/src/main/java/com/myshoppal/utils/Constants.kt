@@ -35,6 +35,8 @@ object Constants {
 
     const val USER_PROFILE_IMAGE:String = "User_Profile_Image"
 
+    const val IMAGE: String = "image"
+
     /**
      * A function for user profile image selection from phone storage.
      */
